@@ -52,7 +52,7 @@ func (r *NscReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 	fmt.Printf("ReferenceGrant: %+v\n", referenceGrant)
 
     if err := r.Create(ctx, referenceGrant); err != nil {
-        fmt.Printf(err, "Failed to create ReferenceGrant...")
+	fmt.Printf("Failed to create ReferenceGrant...: %v", err)
         return ctrl.Result{}, err
     }
 
