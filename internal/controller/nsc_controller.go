@@ -52,13 +52,9 @@ func (r *NscReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
         return ctrl.Result{}, err
     }
 
-	// fmt.Printf("HTTPRoute: %+v\n", httpRoute)
-	fmt.Printf("ReferenceGrant: %+v\n", referenceGrant)
-
-    if err := r.Create(ctx, referenceGrant); err != nil {
-	fmt.Printf("Failed to create ReferenceGrant...: %v", err)
-        return ctrl.Result{}, err
-    }
+    _, err := ctrl.CreateOrUpdate(ctx, r.Client, referenceGrant, func() error {
+        return nil
+    })
 
 	return ctrl.Result{}, nil
 }

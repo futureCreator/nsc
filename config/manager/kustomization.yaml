@@ -5,4 +5,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: blackiie9/nsc
-  newTag: v3
+  newTag: v4
