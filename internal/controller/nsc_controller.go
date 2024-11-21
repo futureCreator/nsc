@@ -8,6 +8,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	gatewayv1beta1 "sigs.k8s.io/gateway-api/apis/v1beta1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type NscReconciler struct {
@@ -23,6 +25,37 @@ func (r *NscReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
+	// Create ReferenceGrant
+	referenceGrant := &gatewayv1beta1.ReferenceGrant{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "allow-kong-system-routes",
+			Namespace: namespace,
+		},
+		Spec: gatewayv1beta1.ReferenceGrantSpec{
+			From: []gatewayv1beta1.ReferenceGrantFrom{
+				{
+					Group:     gatewayv1beta1.Group("gateway.networking.k8s.io"),
+					Kind:      gatewayv1beta1.Kind("HTTPRoute"),
+					Namespace: "kong-system",
+				},
+			},
+			To: []gatewayv1beta1.ReferenceGrantTo{
+				{
+					Group: gatewayv1beta1.Group(""),
+					Kind:  gatewayv1beta1.Kind("Service"),
+				},
+			},
+		},
+	}
+
+	// fmt.Printf("HTTPRoute: %+v\n", httpRoute)
+	fmt.Printf("ReferenceGrant: %+v\n", referenceGrant)
+
+    if err := r.Create(ctx, referenceGrant); err != nil {
+        log.Error(err, "Failed to create ReferenceGrant...")
+        return ctrl.Result{}, err
+    }
+
 	return ctrl.Result{}, nil
 }
 
@@ -31,4 +64,4 @@ func (r *NscReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&corev1.Namespace{}).
 		Named("namespace-controller").
 		Complete(r)
-	}
+}
