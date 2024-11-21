@@ -56,6 +56,11 @@ func (r *NscReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
         return nil
     })
 
+	if err != nil {
+        fmt.Printf("Failed to create or update ReferenceGrant: %v\n", err)
+        return ctrl.Result{}, err
+    }
+
 	return ctrl.Result{}, nil
 }
 
