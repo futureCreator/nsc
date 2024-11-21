@@ -48,6 +48,10 @@ func (r *NscReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 		},
 	}
 
+	if err := ctrl.SetControllerReference(&namespace, referenceGrant, r.Scheme); err != nil {
+        return ctrl.Result{}, err
+    }
+
 	// fmt.Printf("HTTPRoute: %+v\n", httpRoute)
 	fmt.Printf("ReferenceGrant: %+v\n", referenceGrant)
 
