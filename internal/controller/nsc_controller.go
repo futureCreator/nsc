@@ -3,7 +3,6 @@ package controller
 import (
 	"context"
 	"fmt"
-	"log"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -53,7 +52,7 @@ func (r *NscReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 	fmt.Printf("ReferenceGrant: %+v\n", referenceGrant)
 
     if err := r.Create(ctx, referenceGrant); err != nil {
-        log.Error(err, "Failed to create ReferenceGrant...")
+        fmt.Printf(err, "Failed to create ReferenceGrant...")
         return ctrl.Result{}, err
     }
 
