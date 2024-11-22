@@ -12,3 +12,6 @@ rules:
 - apiGroups: ["gateway.networking.k8s.io"]
   resources: ["referencegrants"]
   verbs: ["create", "get", "list", "watch"]
+- apiGroups: ["gateway.networking.k8s.io"]
+  resources: ["httproutes"]
+  verbs: ["create", "get", "list", "watch"]
