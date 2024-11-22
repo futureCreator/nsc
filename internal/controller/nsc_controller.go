@@ -5,11 +5,11 @@ import (
 	"fmt"
 
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	gatewayv1beta1 "sigs.k8s.io/gateway-api/apis/v1beta1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type NscReconciler struct {
@@ -23,6 +23,14 @@ func (r *NscReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 	var namespace corev1.Namespace
 	if err := r.Get(ctx, req.NamespacedName, &namespace); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+
+	excludedNamespaces := []string{"kube-system", "default", "kube-public", "monitoring"}
+	for _, ns := range excludedNamespaces {
+		if req.NamespacedName.Name == ns {
+			fmt.Printf("Skipping excluded namespace: %s\n", req.NamespacedName.Name)
+			return ctrl.Result{}, nil
+		}
 	}
 
 	// Create ReferenceGrant
@@ -49,17 +57,17 @@ func (r *NscReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 	}
 
 	if err := ctrl.SetControllerReference(&namespace, referenceGrant, r.Scheme); err != nil {
-        return ctrl.Result{}, err
-    }
+		return ctrl.Result{}, err
+	}
 
-    _, err := ctrl.CreateOrUpdate(ctx, r.Client, referenceGrant, func() error {
-        return nil
-    })
+	_, err := ctrl.CreateOrUpdate(ctx, r.Client, referenceGrant, func() error {
+		return nil
+	})
 
 	if err != nil {
-        fmt.Printf("Failed to create or update ReferenceGrant: %v\n", err)
-        return ctrl.Result{}, err
-    }
+		fmt.Printf("Failed to create or update ReferenceGrant: %v\n", err)
+		return ctrl.Result{}, err
+	}
 
 	return ctrl.Result{}, nil
 }
